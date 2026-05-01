@@ -11,7 +11,6 @@ import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.repository.PedidoRepository;
 import org.hibernate.sql.Update;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.annotation.JsonAppend;
@@ -90,7 +89,7 @@ public class PedidoService {
         pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
         if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
             enviarPedidoParaCozinha(new CozinhaPedidoDto(pedido.getId(),
-                    pedido.getDataDoPedido(),
+                    LocalDate.parse("0001-01-01"),
                     pedido.getItens()
                             .stream()
                             .map(p -> new CozinhaItemPedidoDto(
