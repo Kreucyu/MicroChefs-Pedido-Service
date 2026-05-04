@@ -47,7 +47,7 @@ public class PedidoService {
     }
 
     public RecoveryPedidoDTO exibirPedidoId(Long id) {
-        Pedido pedido = this.pedidoRepository.findById(id).get();
+        Pedido pedido = this.pedidoRepository.findById(id).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
         return new RecoveryPedidoDTO(pedido.getId(),
                 pedido.getStatusDoPedido(),
                 pedido.getDataDoPedido(),
@@ -73,13 +73,12 @@ public class PedidoService {
     }
 
     public void deletarPedidoId(Long id) {
-        Pedido pedido = this.pedidoRepository.findById(id).get();
-        if(pedido == null) { throw new ErroPedidoException("Pedido não encontrado"); }
+        Pedido pedido = this.pedidoRepository.findById(id).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
         this.pedidoRepository.delete(pedido);
     }
 
     public UpdatePedidoDTO atualizarStatusPedido(UpdatePedidoDTO updatePedidoDto) {
-        Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).get();
+        Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
         pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
         if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
             enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
