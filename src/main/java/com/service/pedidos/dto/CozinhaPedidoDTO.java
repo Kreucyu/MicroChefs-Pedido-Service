@@ -3,9 +3,9 @@ package com.service.pedidos.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-public record CozinhaPedidoDto(
+public record CozinhaPedidoDTO(
         Long id,
         LocalDate dataDoPedido,
-        List<CozinhaItemPedidoDto> itens
+        List<CozinhaItemPedidoDTO> itens
 ) {
 }

@@ -1,9 +1,9 @@
 package com.service.pedidos.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.pedidos.dto.CreatePedidoDto;
-import com.service.pedidos.dto.RecoveryPedidoDto;
-import com.service.pedidos.dto.UpdatePedidoDto;
+import com.service.pedidos.dto.CreatePedidoDTO;
+import com.service.pedidos.dto.RecoveryPedidoDTO;
+import com.service.pedidos.dto.UpdatePedidoDTO;
 import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.service.PedidoService;
 import org.springframework.http.HttpStatus;
@@ -23,17 +23,17 @@ public class PedidoController {
     }
 
     @PostMapping("/criar")
-    public ResponseEntity<CreatePedidoDto> criarPedido(@RequestBody CreatePedidoDto createPedidoDto) {
+    public ResponseEntity<CreatePedidoDTO> criarPedido(@RequestBody CreatePedidoDTO createPedidoDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.criarPedido(createPedidoDto));
     }
 
     @GetMapping("/exibir")
-    public ResponseEntity<List<RecoveryPedidoDto>> exibirTodosPedidos() {
+    public ResponseEntity<List<RecoveryPedidoDTO>> exibirTodosPedidos() {
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.exibirTodosPedidos());
     }
 
     @GetMapping("/exibir/{id}")
-    public ResponseEntity<RecoveryPedidoDto> exibirPedido(@PathVariable Long id) {
+    public ResponseEntity<RecoveryPedidoDTO> exibirPedido(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.exibirPedidoId(id));
     }
 
@@ -48,7 +48,7 @@ public class PedidoController {
     }
 
     @PatchMapping("/atualizar")
-    public ResponseEntity<UpdatePedidoDto> atualizarStatusPedido(@RequestBody UpdatePedidoDto updatePedidoDto) {
+    public ResponseEntity<UpdatePedidoDTO> atualizarStatusPedido(@RequestBody UpdatePedidoDTO updatePedidoDto) {
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.atualizarStatusPedido(updatePedidoDto));
     }
 }

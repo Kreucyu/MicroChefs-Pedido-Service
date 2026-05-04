@@ -1,6 +1,6 @@
 package com.service.pedidos.consumer;
 
-import com.service.pedidos.dto.UpdatePedidoDto;
+import com.service.pedidos.dto.UpdatePedidoDTO;
 import com.service.pedidos.service.PedidoService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class UpdatePedidoConsumer {
 
     @RabbitListener(queues = { "pedido-queue" })
     public void receberAtualizacao(@Payload String updateJson) {
-        UpdatePedidoDto update = objectMapper.readValue(updateJson, UpdatePedidoDto.class);
+        UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
         pedidoService.atualizarStatusPedido(update);
     }
 

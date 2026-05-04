@@ -1,11 +1,10 @@
 package com.service.pedidos.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 
 import java.math.BigDecimal;
 
-public record CreateItemPedidoDto(
+public record CreateItemPedidoDTO(
         @NotNull Long idProduto,
         @NotNull Integer quantidadeProduto,
         @NotNull BigDecimal precoProduto

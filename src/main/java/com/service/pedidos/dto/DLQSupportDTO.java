@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record DLQSupportDto(
+public record DLQSupportDTO(
         @NotNull String tipoMensagem,
         @NotNull String filaDeOrigem,
         @NotNull String tipoErro,
