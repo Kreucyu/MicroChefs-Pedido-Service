@@ -1,6 +1,7 @@
 package com.service.pedidos.producer;
 
 import com.service.pedidos.dto.CozinhaPedidoDTO;
+import com.service.pedidos.dto.DLQSupportDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,14 @@ public class PedidoProducer {
                 "pedido-exchange",
                 "pedido-key.pago",
                 objectMapper.writeValueAsString(pedido)
+        );
+    }
+
+    public void dlqSender(DLQSupportDTO dlqSupportDTO) {
+        amqpTemplate.convertAndSend(
+                "dead-letter-exchange",
+                "dead-message",
+                objectMapper.writeValueAsString(dlqSupportDTO)
         );
     }
 }
