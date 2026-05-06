@@ -36,10 +36,8 @@ public class UpdatePedidoConsumer {
         try {
             UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
             pedidoService.atualizarStatusPedido(update);
-        } catch (ErroPedidoException e) {
-            pedidoService.processarErro(e, updateJson, "DATA_ERROR");
-        } catch (InfraException e) {
-            pedidoService.processarErro(e, updateJson, "INFRA_ERROR");
+        } catch (ErroPedidoException | InfraException e) {
+            pedidoService.processarErro(e, updateJson);
         }
     }
 }

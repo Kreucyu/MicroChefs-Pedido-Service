@@ -126,7 +126,11 @@ public class PedidoService {
         pedidoProducer.enviarParaCozinha(pedido);
     }
 
-    public void processarErro(Exception e, String json, String tipo) {
+    public void processarErro(Exception e, String json) {
+        String tipo = "DATA_ERROR";
+        if (e instanceof InfraException) {
+            tipo = "INFRA_ERROR";
+        }
         DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
                 "PEDIDO_STATUS_UPDATE",
                 "pedido-queue",
