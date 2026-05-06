@@ -2,6 +2,7 @@ package com.service.pedidos.producer;
 
 import com.service.pedidos.dto.CozinhaPedidoDTO;
 import com.service.pedidos.dto.DLQSupportDTO;
+import com.service.pedidos.dto.UpdatePedidoDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,14 @@ public class PedidoProducer {
                 "pedido-exchange",
                 "pedido-key.pago",
                 objectMapper.writeValueAsString(pedido)
+        );
+    }
+
+    public void enviarParaServicos(UpdatePedidoDTO updatePedidoDTO) {
+        amqpTemplate.convertAndSend(
+                "pedido-exchange",
+                "pedido-key.updates",
+                objectMapper.writeValueAsString(updatePedidoDTO)
         );
     }
 

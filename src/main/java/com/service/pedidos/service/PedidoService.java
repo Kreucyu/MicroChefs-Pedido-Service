@@ -7,10 +7,18 @@ import com.service.pedidos.entities.StatusPedido;
 import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.repository.PedidoRepository;
+import org.hibernate.QueryTimeoutException;
+import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.AmqpTimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -84,25 +92,30 @@ public class PedidoService {
             ErroPedidoException.class
     })
     public UpdatePedidoDTO atualizarStatusPedido(UpdatePedidoDTO updatePedidoDto) {
-        Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
-        if (!pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())
-                && updatePedidoDto.statusPedido() != null) {
-            throw new ErroPedidoException("Status inválido");
-        }
-        pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
+        try {
+            Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
+            if (!pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())
+                    && updatePedidoDto.statusPedido() != null) {
+                throw new ErroPedidoException("Status inválido");
+            }
+            pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
 
-        if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
-            enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
-                    pedido.getDataDoPedido(),
-                    pedido.getItens()
-                            .stream()
-                            .map(p -> new CozinhaItemPedidoDTO(
-                                    p.getIdProduto(),
-                                    p.getQuantidadeProduto()))
-                            .toList()));
-        }
-        pedidoRepository.save(pedido);
-        return updatePedidoDto;
+            if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
+                enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
+                        pedido.getDataDoPedido(),
+                        pedido.getItens()
+                                .stream()
+                                .map(p -> new CozinhaItemPedidoDTO(
+                                        p.getIdProduto(),
+                                        p.getQuantidadeProduto()))
+                                .toList()));
+            }
+
+            pedidoRepository.save(pedido);
+            pedidoProducer.enviarParaServicos(updatePedidoDto);
+            return updatePedidoDto;
+        } catch (CannotCreateTransactionException | QueryTimeoutException | TransientDataAccessException | AmqpException | AmqpTimeoutException | AmqpConnectException e)
+
     }
 
     private void enviarPedidoParaCozinha(CozinhaPedidoDTO pedido) {
