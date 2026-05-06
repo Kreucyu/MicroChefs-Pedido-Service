@@ -31,7 +31,7 @@ public class UpdatePedidoConsumer {
     @Autowired
     private PedidoProducer pedidoProducer;
 
-    @RabbitListener(queues = "pedido-queue", ackMode = "MANUAL")
+    @RabbitListener(queues = "pedido-queue")
     public void receberAtualizacao(@Payload String updateJson) {
         try {
             UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
