@@ -2,12 +2,15 @@ package com.service.pedidos.consumer;
 
 import com.service.pedidos.dto.DLQSupportDTO;
 import com.service.pedidos.dto.UpdatePedidoDTO;
+import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.service.PedidoService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -29,21 +32,11 @@ public class UpdatePedidoConsumer {
 
     @RabbitListener(queues = "pedido-queue", ackMode = "MANUAL")
     public void receberAtualizacao(@Payload String updateJson) {
-        UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
-        if(update.statusPedido() == null) {
-            DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
-                    "PEDIDO_STATUS_UPDATE",
-                    "pedido-queue",
-                    "DATA_ERROR",
-                    "Status inválido",
-                    updateJson,
-                    LocalDateTime.now()
-            );
-            pedidoProducer.dlqSender(dlqSupportDTO);
-            System.out.println("sending");
-            return;
+        try {
+            UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
+            pedidoService.atualizarStatusPedido(update);
+        } catch (ErroPedidoException e) {
+            pedidoService.processarErro(e, updateJson);
         }
-        pedidoService.atualizarStatusPedido(update);
     }
-
 }

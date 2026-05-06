@@ -8,9 +8,12 @@ import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,7 +33,7 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setClienteId(createPedidoDto.clienteId());
         pedido.setDataDoPedido(LocalDate.now());
-        pedido.setStatusDoPedido(StatusPedido.CRIADO);
+        pedido.setStatusDoPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
         pedido.setFormaDePagamento(createPedidoDto.formaDePagamento());
 
         for(CreateItemPedidoDTO itensDto : createPedidoDto.itens()) {
@@ -77,12 +80,20 @@ public class PedidoService {
         this.pedidoRepository.delete(pedido);
     }
 
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000), value = {
+            ErroPedidoException.class
+    })
     public UpdatePedidoDTO atualizarStatusPedido(UpdatePedidoDTO updatePedidoDto) {
         Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
+        if (!pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())
+                && updatePedidoDto.statusPedido() != null) {
+            throw new ErroPedidoException("Status inválido");
+        }
         pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
+
         if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
             enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
-                    LocalDate.parse("0001-01-01"),
+                    pedido.getDataDoPedido(),
                     pedido.getItens()
                             .stream()
                             .map(p -> new CozinhaItemPedidoDTO(
@@ -96,5 +107,18 @@ public class PedidoService {
 
     private void enviarPedidoParaCozinha(CozinhaPedidoDTO pedido) {
         pedidoProducer.enviarParaCozinha(pedido);
+    }
+
+    public void processarErro(Exception e, String json) {
+        DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
+                "PEDIDO_STATUS_UPDATE",
+                "pedido-queue",
+                "DATA_ERROR",
+                e.getMessage(),
+                json,
+                LocalDateTime.now()
+        );
+
+        System.out.println(dlqSupportDTO);
     }
 }
