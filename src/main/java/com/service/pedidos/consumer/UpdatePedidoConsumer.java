@@ -3,6 +3,7 @@ package com.service.pedidos.consumer;
 import com.service.pedidos.dto.DLQSupportDTO;
 import com.service.pedidos.dto.UpdatePedidoDTO;
 import com.service.pedidos.exceptions.ErroPedidoException;
+import com.service.pedidos.exceptions.InfraException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.service.PedidoService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -36,7 +37,9 @@ public class UpdatePedidoConsumer {
             UpdatePedidoDTO update = objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
             pedidoService.atualizarStatusPedido(update);
         } catch (ErroPedidoException e) {
-            pedidoService.processarErro(e, updateJson);
+            pedidoService.processarErro(e, updateJson, "DATA_ERROR");
+        } catch (InfraException e) {
+            pedidoService.processarErro(e, updateJson, "INFRA_ERROR");
         }
     }
 }

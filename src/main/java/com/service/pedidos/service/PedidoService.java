@@ -5,6 +5,7 @@ import com.service.pedidos.entities.ItemPedido;
 import com.service.pedidos.entities.Pedido;
 import com.service.pedidos.entities.StatusPedido;
 import com.service.pedidos.exceptions.ErroPedidoException;
+import com.service.pedidos.exceptions.InfraException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.repository.PedidoRepository;
 import org.hibernate.QueryTimeoutException;
@@ -18,6 +19,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDate;
@@ -88,8 +90,9 @@ public class PedidoService {
         this.pedidoRepository.delete(pedido);
     }
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000), value = {
-            ErroPedidoException.class
+    @Transactional
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000), retryFor = {
+            InfraException.class
     })
     public UpdatePedidoDTO atualizarStatusPedido(UpdatePedidoDTO updatePedidoDto) {
         try {
@@ -114,24 +117,25 @@ public class PedidoService {
             pedidoRepository.save(pedido);
             pedidoProducer.enviarParaServicos(updatePedidoDto);
             return updatePedidoDto;
-        } catch (CannotCreateTransactionException | QueryTimeoutException | TransientDataAccessException | AmqpException | AmqpTimeoutException | AmqpConnectException e)
-
+        } catch (CannotCreateTransactionException | QueryTimeoutException | TransientDataAccessException | AmqpException e) {
+            throw new InfraException("Erro na conexão");
+        }
     }
 
     private void enviarPedidoParaCozinha(CozinhaPedidoDTO pedido) {
         pedidoProducer.enviarParaCozinha(pedido);
     }
 
-    public void processarErro(Exception e, String json) {
+    public void processarErro(Exception e, String json, String tipo) {
         DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
                 "PEDIDO_STATUS_UPDATE",
                 "pedido-queue",
-                "DATA_ERROR",
+                tipo,
                 e.getMessage(),
                 json,
                 LocalDateTime.now()
         );
-
+        pedidoProducer.dlqSender(dlqSupportDTO);
         System.out.println(dlqSupportDTO);
     }
 }
