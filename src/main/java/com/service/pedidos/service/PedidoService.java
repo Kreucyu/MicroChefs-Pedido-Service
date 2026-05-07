@@ -126,7 +126,7 @@ public class PedidoService {
         pedidoProducer.enviarParaCozinha(pedido);
     }
 
-    public void processarErro(Exception e, String json) {
+    public void processarErro(Exception e, String JSON) {
         String tipo = "DATA_ERROR";
         if (e instanceof InfraException) {
             tipo = "INFRA_ERROR";
@@ -136,10 +136,11 @@ public class PedidoService {
                 "pedido-queue",
                 tipo,
                 e.getMessage(),
-                json,
+                JSON,
                 LocalDateTime.now()
         );
         pedidoProducer.dlqSender(dlqSupportDTO);
         System.out.println(dlqSupportDTO);
     }
 }
+

@@ -14,6 +14,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 
@@ -46,7 +47,7 @@ public class UpdatePedidoConsumer {
     private UpdatePedidoDTO converterMensagemJSON(String updateJson) {
         try {
             return objectMapper.readValue(updateJson, UpdatePedidoDTO.class);
-        } catch (InvalidFormatException e) {
+        } catch (InvalidFormatException | StreamReadException e) {
             throw new ErroPedidoException("JSON contém dados inválidos");
         }
     }
