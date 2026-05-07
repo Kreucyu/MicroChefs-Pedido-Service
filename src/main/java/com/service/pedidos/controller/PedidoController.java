@@ -54,9 +54,4 @@ public class PedidoController {
     public ResponseEntity<UpdatePedidoDTO> atualizarStatusPedido(@RequestBody UpdatePedidoDTO updatePedidoDto) {
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.atualizarStatusPedido(updatePedidoDto));
     }
-
-    @GetMapping("/felipe")
-    public void felipe() {
-        pedidoProducer.enviarParaServicos(new UpdatePedidoDTO(1, StatusPedido.PAGO));
-    }
 }
