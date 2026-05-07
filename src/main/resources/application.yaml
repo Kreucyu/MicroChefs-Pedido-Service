@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: pedidos
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/pedidos
+    username: docker
+    password: docker
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "health,info,metrics,prometheus"
+    endpoint:
+      health:
+        show-details: always
+      prometheus:
+        enabled: true
+
+  rabbitmq:
+    port: 5672
+    addresses: amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 1
+        prefetch: 1
+        acknowledge-mode: auto
+        retry:
+          enabled: false
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    enabled: false
