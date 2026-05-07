@@ -40,3 +40,8 @@ server:
 eureka:
   client:
     enabled: false
+
+api:
+  security:
+    token:
+      secret: CHAVE_SUPER_SECRETA_BPUI_123456789
