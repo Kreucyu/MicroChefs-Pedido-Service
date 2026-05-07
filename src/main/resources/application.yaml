@@ -13,17 +13,6 @@ spring:
     hibernate:
       ddl-auto: update
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "health,info,metrics,prometheus"
-    endpoint:
-      health:
-        show-details: always
-      prometheus:
-        enabled: true
-
   rabbitmq:
     port: 5672
     addresses: amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz
@@ -35,6 +24,15 @@ spring:
         acknowledge-mode: auto
         retry:
           enabled: false
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+    endpoint:
+      health:
+        show-details: always
 
 server:
   port: 8090
