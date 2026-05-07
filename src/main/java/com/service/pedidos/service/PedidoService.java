@@ -98,7 +98,7 @@ public class PedidoService {
         try {
             Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
             if (!pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())
-                    && updatePedidoDto.statusPedido() != null) {
+                    || updatePedidoDto.statusPedido() != null) {
                 throw new ErroPedidoException("Status inválido");
             }
             pedido.setStatusDoPedido(updatePedidoDto.statusPedido());

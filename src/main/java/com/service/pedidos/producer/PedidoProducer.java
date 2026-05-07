@@ -28,7 +28,7 @@ public class PedidoProducer {
     public void enviarParaServicos(UpdatePedidoDTO updatePedidoDTO) {
         amqpTemplate.convertAndSend(
                 "pedido-exchange",
-                "pedido-key.updates",
+                "pedido-key.status",
                 objectMapper.writeValueAsString(updatePedidoDTO)
         );
     }

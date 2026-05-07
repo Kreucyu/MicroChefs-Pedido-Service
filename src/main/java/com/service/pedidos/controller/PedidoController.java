@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.pedidos.dto.CreatePedidoDTO;
 import com.service.pedidos.dto.RecoveryPedidoDTO;
 import com.service.pedidos.dto.UpdatePedidoDTO;
+import com.service.pedidos.entities.StatusPedido;
 import com.service.pedidos.exceptions.ErroPedidoException;
+import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.service.PedidoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +19,11 @@ import java.util.List;
 @RequestMapping("/pedidos")
 public class PedidoController {
 
-    private final PedidoService pedidoService;
+    @Autowired
+    private PedidoProducer pedidoProducer;
 
-    public PedidoController(PedidoService pedidoService, ObjectMapper objectMapper) {
-        this.pedidoService = pedidoService;
-    }
+    @Autowired
+    private PedidoService pedidoService;
 
     @PostMapping("/criar")
     public ResponseEntity<CreatePedidoDTO> criarPedido(@RequestBody CreatePedidoDTO createPedidoDto) {
@@ -50,5 +53,10 @@ public class PedidoController {
     @PatchMapping("/atualizar")
     public ResponseEntity<UpdatePedidoDTO> atualizarStatusPedido(@RequestBody UpdatePedidoDTO updatePedidoDto) {
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.atualizarStatusPedido(updatePedidoDto));
+    }
+
+    @GetMapping("/felipe")
+    public void felipe() {
+        pedidoProducer.enviarParaServicos(new UpdatePedidoDTO(1, StatusPedido.PAGO));
     }
 }
