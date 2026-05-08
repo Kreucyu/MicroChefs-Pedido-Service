@@ -1,10 +1,8 @@
 package com.service.pedidos.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.pedidos.dto.CreatePedidoDTO;
 import com.service.pedidos.dto.RecoveryPedidoDTO;
 import com.service.pedidos.dto.UpdatePedidoDTO;
-import com.service.pedidos.entities.StatusPedido;
 import com.service.pedidos.exceptions.ErroPedidoException;
 import com.service.pedidos.producer.PedidoProducer;
 import com.service.pedidos.service.PedidoService;

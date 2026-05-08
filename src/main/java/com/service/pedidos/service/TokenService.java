@@ -26,6 +26,7 @@ public class TokenService {
             }
             return subject;
         } catch (JWTVerificationException e) {
+            System.err.println("Erro ao validar token JWT: " + e.getMessage());
             return "";
         }
     }
