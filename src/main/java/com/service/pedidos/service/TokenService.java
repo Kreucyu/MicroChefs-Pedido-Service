@@ -15,12 +15,16 @@ public class TokenService {
     public String validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT
+            var verificador = JWT
                     .require(algorithm)
                     .withIssuer("ClienteService")
                     .build()
-                    .verify(token)
-                    .getSubject();
+                    .verify(token);
+            String subject = verificador.getSubject();
+            if(subject == null || subject.isEmpty()) {
+                subject = verificador.getClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").asString();
+            }
+            return subject;
         } catch (JWTVerificationException e) {
             return "";
         }
