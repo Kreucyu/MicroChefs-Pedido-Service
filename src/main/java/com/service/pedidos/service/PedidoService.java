@@ -1,6 +1,7 @@
 package com.service.pedidos.service;
 
 import com.service.pedidos.dto.*;
+import com.service.pedidos.entities.FormaDePagamento;
 import com.service.pedidos.entities.ItemPedido;
 import com.service.pedidos.entities.Pedido;
 import com.service.pedidos.entities.StatusPedido;
@@ -56,6 +57,9 @@ public class PedidoService {
             pedido.adicionarItem(itemPedido);
         }
         pedidoRepository.save(pedido);
+        if(createPedidoDto.formaDePagamento().equals(FormaDePagamento.DINHEIRO)) {
+            atualizarStatusPedido(new UpdatePedidoDTO(pedido.getId(), StatusPedido.PAGO));
+        }
         return createPedidoDto;
     }
 
@@ -97,11 +101,12 @@ public class PedidoService {
     public UpdatePedidoDTO atualizarStatusPedido(UpdatePedidoDTO updatePedidoDto) {
         try {
             Pedido pedido = this.pedidoRepository.findById(updatePedidoDto.id()).orElseThrow(() -> new ErroPedidoException("Pedido não encontrado"));
-            if (!pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())
-                    || updatePedidoDto.statusPedido() != null) {
+            if (updatePedidoDto.statusPedido() == null
+                    || !pedido.getStatusDoPedido().proximosEstados().contains(updatePedidoDto.statusPedido())) {
                 throw new ErroPedidoException("Status inválido");
             }
             pedido.setStatusDoPedido(updatePedidoDto.statusPedido());
+            System.out.println(pedido);
 
             if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
                 enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),

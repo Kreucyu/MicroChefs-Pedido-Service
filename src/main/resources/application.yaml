@@ -11,7 +11,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
 
   rabbitmq:
     port: 5672
@@ -35,11 +35,7 @@ spring:
         show-details: always
 
 server:
-  port: 8090
-
-eureka:
-  client:
-    enabled: false
+  port: 8100
 
 api:
   security:
