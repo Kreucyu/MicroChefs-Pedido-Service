@@ -3,7 +3,7 @@ spring:
     name: pedidos
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/pedidos
+    url: jdbc:postgresql://localhost:9004/pedidos
     username: docker
     password: docker
     driver-class-name: org.postgresql.Driver
