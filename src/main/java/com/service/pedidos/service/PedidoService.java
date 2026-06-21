@@ -109,7 +109,7 @@ public class PedidoService {
             System.out.println(pedido);
 
             if(pedido.getStatusDoPedido().equals(StatusPedido.PAGO)) {
-                enviarPedidoParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
+                pedidoProducer.enviarParaCozinha(new CozinhaPedidoDTO(pedido.getId(),
                         pedido.getDataDoPedido(),
                         pedido.getItens()
                                 .stream()
@@ -117,6 +117,12 @@ public class PedidoService {
                                         p.getIdProduto(),
                                         p.getQuantidadeProduto()))
                                 .toList()));
+                pedidoProducer.atualizarQuantidadeProduto(pedido.getItens()
+                        .stream()
+                        .map(p -> new UpdateProdutoDTO(
+                                p.getIdProduto(),
+                                p.getQuantidadeProduto()))
+                        .toList());
             }
 
             pedidoRepository.save(pedido);
@@ -125,10 +131,6 @@ public class PedidoService {
         } catch (CannotCreateTransactionException | QueryTimeoutException | TransientDataAccessException | AmqpException e) {
             throw new InfraException("Erro na conexão");
         }
-    }
-
-    private void enviarPedidoParaCozinha(CozinhaPedidoDTO pedido) {
-        pedidoProducer.enviarParaCozinha(pedido);
     }
 
     public void processarErro(Exception e, String JSON) {
