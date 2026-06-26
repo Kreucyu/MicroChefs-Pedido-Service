@@ -5,7 +5,7 @@ import java.util.List;
 
 public record CozinhaPedidoDTO(
         Long id,
-        LocalDate dataDoPedido,
+        java.time.LocalDateTime dataDoPedido,
         List<CozinhaItemPedidoDTO> itens
 ) {
 }

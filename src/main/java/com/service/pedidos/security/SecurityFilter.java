@@ -26,9 +26,20 @@ public class SecurityFilter extends OncePerRequestFilter {
         System.out.println("Token: " + token);
         if (token != null) {
             var subject = tokenService.validateToken(token);
-            if(subject != null && !subject.isEmpty()) {
-                    var authentication = new UsernamePasswordAuthenticationToken(subject, null,  Collections.emptyList());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (subject != null && !subject.isEmpty()) {
+                String role = tokenService.getRole(token);
+                Long clienteId = tokenService.getClienteId(token);
+
+                var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role.toUpperCase());
+                UserPrincipal principal = new UserPrincipal(subject, role, clienteId);
+
+                var authentication = new UsernamePasswordAuthenticationToken(principal, null, java.util.List.of(authority));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"message\":\"Token inválido ou expirado\"}");
+                return;
             }
         }
         filterChain.doFilter(request, response);

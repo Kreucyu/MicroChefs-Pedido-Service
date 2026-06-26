@@ -10,10 +10,23 @@ import java.util.List;
 public record RecoveryPedidoDTO(
         Long id,
         StatusPedido statusDoPedido,
-        LocalDate dataDoPedido,
+        java.time.LocalDateTime dataDoPedido,
         FormaDePagamento formaDePagamento,
-        List<RecoveryItemPedidoDTO>itens,
-        BigDecimal valorTotal
+        List<RecoveryItemPedidoDTO> itens,
+        BigDecimal valorTotal,
+        Long motoboyId,
+        Double distanciaKm,
+        Integer etaMinutos,
+        String rotaCoords,
+        String pixCopiaECola,
+        String pixTransactionId,
+        String gatewayPaymentId,
+        String paymentStatus,
+        Long enderecoId,
+        Double entregaLatitude,
+        Double entregaLongitude,
+        Double restauranteLatitude,
+        Double restauranteLongitude
 ) {
 
 }

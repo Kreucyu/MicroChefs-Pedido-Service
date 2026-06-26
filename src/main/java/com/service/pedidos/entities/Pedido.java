@@ -27,12 +27,19 @@ public class Pedido {
     @Column(nullable = false)
     private Long clienteId;
 
+    private Long enderecoId;
+
+    private Double entregaLatitude;
+    private Double entregaLongitude;
+    private Double restauranteLatitude;
+    private Double restauranteLongitude;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusPedido statusDoPedido;
 
     @Column(nullable = false)
-    private LocalDate dataDoPedido;
+    private java.time.LocalDateTime dataDoPedido;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -43,6 +50,20 @@ public class Pedido {
     private List<ItemPedido> itens =  new ArrayList<>();
 
     private BigDecimal valorTotal;
+
+    private Long motoboyId;
+    private Double distanciaKm;
+    private Integer etaMinutos;
+
+    @Column(columnDefinition = "TEXT")
+    private String rotaCoords;
+
+    @Column(columnDefinition = "TEXT")
+    private String pixCopiaECola;
+
+    private String pixTransactionId;
+    private String gatewayPaymentId;
+    private String paymentStatus;
 
     public void adicionarItem(ItemPedido item) {
         itens.add(item);

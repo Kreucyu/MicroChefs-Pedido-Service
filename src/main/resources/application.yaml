@@ -3,19 +3,18 @@ spring:
     name: pedidos
 
   datasource:
-    url: jdbc:postgresql://localhost:9004/pedidos
-    username: docker
-    password: docker
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:9004/pedidos}
+    username: ${SPRING_DATASOURCE_USERNAME:docker}
+    password: ${SPRING_DATASOURCE_PASSWORD:docker}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
   rabbitmq:
-    port: 5672
-    addresses: amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz
+    addresses: ${SPRING_RABBITMQ_ADDRESSES:amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz}
     listener:
       simple:
         concurrency: 1
@@ -25,19 +24,38 @@ spring:
         retry:
           enabled: false
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*"
-    endpoint:
-      health:
-        show-details: always
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  cache:
+    type: redis
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 server:
-  port: 8100
+  port: ${SERVER_PORT:8100}
 
 api:
   security:
     token:
       secret: CHAVE_SUPER_SECRETA_BPUI_123456789
+
+produto:
+  service:
+    url: ${PRODUTO_SERVICE_URL:http://localhost:9002/produtos}
+
+pix:
+  webhook:
+    secret: CHAVE_WEBHOOK_PIX_MICROCHEFS
