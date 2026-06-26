@@ -537,9 +537,6 @@ public class PedidoService {
 
             pedidoProducer.enviarParaServicos(updatePedidoDto);
 
-
-
-            // Atualizar cache do pedido individual e invalidar lista
             RecoveryPedidoDTO pedidoAtualizado = toDto(pedido);
             var cachePedido = cacheManager.getCache("pedido");
             if (cachePedido != null) {
